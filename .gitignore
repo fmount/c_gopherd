@@ -1,0 +1,5 @@
+bin/*
+*.todo
+*.o
+*.vim
+*.SRCINFO
