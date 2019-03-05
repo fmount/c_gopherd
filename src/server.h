@@ -9,5 +9,5 @@
 
 void *handlerequest(void *connfd);
 void serve(int sockd);
-int start_server();
+int start_server(char *addr, int port);
 int stop_server();
