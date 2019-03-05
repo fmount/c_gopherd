@@ -5,7 +5,7 @@
  *  Copyright (c) 2019, fmount <fmount@inventati.org>
  *
  */
-#include <netinet/in.h> 
+#include <netinet/in.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -13,17 +13,16 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <arpa/inet.h> //inet_addr
-#include<pthread.h> //for threading , link with lpthread
+#include <pthread.h> //for threading , link with lpthread
 
-//#include "defaults.h"
-#define DEFAULT_PORT 70
+#include "defaults.h"
 
 void *handlerequest(void *connfd) {
     fprintf(stdout, "[Handling connection] %d\n", *(int *) connfd);
 }
 
 int
-start_server() {
+start_server(char *addr, int port) {
 
     int sockfd;
     struct sockaddr_in servaddr;
@@ -47,8 +46,8 @@ start_server() {
      * ANY to bind INADDR_ANY
      */
     //servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    servaddr.sin_port = htons(DEFAULT_PORT);
+    servaddr.sin_addr.s_addr = inet_addr(addr);
+    servaddr.sin_port = htons(port);
 
     // Binding newly created socket to given IP and verification
     if ((bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr))) != 0) {
@@ -108,12 +107,12 @@ serve(int sockfd) {
 /**
  * MAIN TO TEST THE STANDALONE SERVER 
  *
- * gcc -o server -I lib -Wimplicit-function-declaration server.c
+ * gcc -o server -I ../lib -lpthread -Wimplicit-function-declaration server.c
  *
  * */
 int
 main() {
 
-    int sockfd = start_server();
+    int sockfd = start_server("127.0.0.1", DEFAULT_PORT);
     serve(sockfd);
 }
