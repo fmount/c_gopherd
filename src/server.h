@@ -7,7 +7,7 @@
  */
 
 
-void handlerequest(int connfd);
+void *handlerequest(void *connfd);
 void serve(int sockd);
 int start_server();
 int stop_server();

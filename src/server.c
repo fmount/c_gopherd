@@ -13,13 +13,13 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <arpa/inet.h> //inet_addr
+#include<pthread.h> //for threading , link with lpthread
 
 //#include "defaults.h"
 #define DEFAULT_PORT 70
 
-void handlerequest(int connfd) {
-    //fprintf(stdout, "[Handling connection]\n");
-    return;
+void *handlerequest(void *connfd) {
+    fprintf(stdout, "[Handling connection] %d\n", *(int *) connfd);
 }
 
 int
@@ -65,6 +65,7 @@ void
 serve(int sockfd) {
     struct sockaddr_in cli;
     int connfd, len;
+    int *sockfd_clone;
     // Now server is ready to listen and verification
     if ((listen(sockfd, 5)) != 0) {
         printf("Listen failed...\n");
@@ -73,19 +74,30 @@ serve(int sockfd) {
     else
         printf("Server listening..\n");
 
-     len = sizeof(struct sockaddr_in);
+    len = sizeof(struct sockaddr_in);
 
-    // Accept the data packet from client and verification
-    connfd = accept(sockfd, (struct sockaddr *)&cli, (socklen_t *)&len);
-    if (connfd < 0) {
-        printf("server acccept failed...\n");
-        exit(0);
+    /*
+     * Accepting connections and handling requests
+     */
+
+    while((connfd = accept(sockfd, (struct sockaddr *)&cli, (socklen_t *)&len))) {;
+        if (connfd < 0) {
+            printf("server acccept failed...\n");
+            /* TODO: Maybe we just need to notify this scenario without
+             * destroying the world
+             */
+            exit(0);
+        }
+        pthread_t t;
+        sockfd_clone = malloc(1);
+        *sockfd_clone = connfd;
+
+        if(pthread_create(&t, NULL, handlerequest, sockfd_clone) < 0) {
+            perror("Could not create thread to serve the request\n");
+            return;
+        }
+        //handlerequest(connfd);
     }
-    else
-        printf("server acccept the client...\n");
-
-    handlerequest(connfd);
-
     // After chatting close the socket
     close(sockfd);
 }
