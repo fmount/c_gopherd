@@ -14,12 +14,40 @@
 #include <netdb.h>
 #include <arpa/inet.h> //inet_addr
 #include <pthread.h> //for threading , link with lpthread
+#include <signal.h>
 
 #include "defaults.h"
 
-void *handlerequest(void *connfd) {
+/**
+ * Gracefully stop the server
+ */
+sig_atomic_t volatile sockfd;
+
+int
+stop_server(int sockfd) {
+    fprintf(stdout, "[GSERVER] Gracefully stopping the server\n");
+    return close(sockfd);
+}
+
+
+static void
+handle_quit(const int sig) {
+    printf("Caught signal %d\n", sig);
+    printf("My SOCKFD IS: %d\n", sockfd);
+    /*
+     * TODO: Maybe more handling is required
+     * to check what's coming from stop_server.
+     */
+    stop_server(sockfd);
+    exit(0);
+}
+
+
+void *
+handlerequest(void *connfd) {
     fprintf(stdout, "[Handling connection] %d\n", *(int *) connfd);
 }
+
 
 int
 start_server(char *addr, int port) {
@@ -39,7 +67,7 @@ start_server(char *addr, int port) {
 
     // assign IP, PORT
     servaddr.sin_family = AF_INET;
-    /** 
+    /**
      * inet_addr is something we need to pass to the
      * start_server function, and port as well
      * we can handle also the case in which we pass
@@ -97,8 +125,6 @@ serve(int sockfd) {
         }
         //handlerequest(connfd);
     }
-    // After chatting close the socket
-    close(sockfd);
 }
 
 
@@ -113,6 +139,15 @@ serve(int sockfd) {
 int
 main() {
 
-    int sockfd = start_server("127.0.0.1", DEFAULT_PORT);
+    sockfd = start_server("127.0.0.1", DEFAULT_PORT);
+
+    struct sigaction act;
+
+    act.sa_flags =  SA_SIGINFO;
+    act.sa_sigaction = &handle_quit;
+
+    sigaction(SIGINT, &act, NULL);
+    fprintf(stdout, "GOT %d\n", sockfd);
+    //signal(SIGINT, (void (*)(int))handle_quit);
     serve(sockfd);
 }
