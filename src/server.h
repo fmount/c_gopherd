@@ -6,8 +6,12 @@
  *
  */
 
+#ifndef SERVER_H
+#define SERVER_H
 
 void *handlerequest(void *connfd);
 void serve(int sockd);
 int start_server(char *addr, int port);
-void stop_server(int sockd);
+int stop_server(int sockd);
+
+#endif /* !SERVER_H */
