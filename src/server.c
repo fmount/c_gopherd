@@ -5,6 +5,7 @@
  *  Copyright (c) 2019, fmount <fmount@inventati.org>
  *
  */
+
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,6 +16,7 @@
 #include <arpa/inet.h> //inet_addr
 #include <pthread.h> //for threading , link with lpthread
 #include <signal.h>
+#include "server.h"
 
 #include "defaults.h"
 
@@ -32,8 +34,12 @@ stop_server(int sockfd) {
 
 static void
 handle_quit(const int sig) {
-    printf("Caught signal %d\n", sig);
-    printf("My SOCKFD IS: %d\n", sockfd);
+
+#ifdef DEBUG
+    fprintf(stdout, "Caught signal %d\n", sig);
+    fprintf(stdout, "My SOCKFD IS: %d\n", sockfd);
+#endif
+
     /*
      * TODO: Maybe more handling is required
      * to check what's coming from stop_server.
@@ -46,6 +52,11 @@ handle_quit(const int sig) {
 void *
 handlerequest(void *connfd) {
     fprintf(stdout, "[Handling connection] %d\n", *(int *) connfd);
+    /**
+     * TODO: Here we have the real handling section 
+     * of the requested resource according to the protocol
+     *
+     */
 }
 
 
@@ -123,7 +134,6 @@ serve(int sockfd) {
             perror("Could not create thread to serve the request\n");
             return;
         }
-        //handlerequest(connfd);
     }
 }
 
@@ -131,14 +141,19 @@ serve(int sockfd) {
 
 
 /**
- * MAIN TO TEST THE STANDALONE SERVER 
+ * MAIN OF THE STANDALONE SERVER 
  *
  * gcc -o server -I ../lib -lpthread -Wimplicit-function-declaration server.c
  *
  * */
 int
-main() {
+main(int argc, char **argv) {
 
+    /**
+     * TODO: Check parameters, implement a basic cli
+     * that reads some configurations
+     *
+     */
     sockfd = start_server("127.0.0.1", DEFAULT_PORT);
 
     struct sigaction act;
@@ -147,7 +162,5 @@ main() {
     act.sa_sigaction = &handle_quit;
 
     sigaction(SIGINT, &act, NULL);
-    fprintf(stdout, "GOT %d\n", sockfd);
-    //signal(SIGINT, (void (*)(int))handle_quit);
     serve(sockfd);
 }
