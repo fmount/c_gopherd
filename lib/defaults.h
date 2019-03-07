@@ -9,4 +9,12 @@
  */
 
 #define DEFAULT_PORT 70
+#define ERROR_STRING "3Invalid input\tfake\t(NULL) 0"
+#define TRUE 0
+#define FALSE 1
+
+typedef enum {
+    ISDIR,
+    ISFILE,
+} FS_RESOURCE;
 
