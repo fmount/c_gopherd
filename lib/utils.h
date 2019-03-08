@@ -47,11 +47,8 @@ exists(const char *resource, int mode) {
     int exist;
 
     /*
-     *
      * mode = ISDIR|ISFILE;
-     *
      * MODE COULD BE ISDIR/ISFILE
-     *
      */
 
     switch(mode) {
