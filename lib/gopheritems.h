@@ -35,7 +35,7 @@ enum item_types {
 
 typedef struct element {
     char *type;
-    char *delim;
+    char *selector;
     char *content;
     // host + port to make a call and retrieve the content ?
     int port;
@@ -46,5 +46,27 @@ typedef struct element {
 /**
  * Prototyping some needed functions to parse gophermap
  */
-g_elem *new_element(char *line, char *host, int port);
-g_elem *parse_gophermap(char *map);
+
+g_elem *new_element(char *line, char *host, unsigned int port);
+void parse_gophermap(const char * fpath, g_elem ** elements, const char * rhost, unsigned int rport );
+int validate_item(const char *rline);
+
+
+/**
+ *  SOME NOTES TO VALIDATE LINES:
+ *
+ *  According to protocol, we need to check if a given line is valid:
+ *
+ *  1. Does begin with a valid ASCII character 
+ *  2. Has at least one TAB
+ *  3. Is at least 5 chars long
+ *  4. OR it begins with 'i'
+ *
+ *  Each line ends with a <CR><LF> (aka \r\t) sequence
+ *
+ *  Example:
+ *
+ *  0Gopher
+ *  Introduction<Tab>intro<Tab>gopher.someserver.org<Tab>70
+ *
+ */
