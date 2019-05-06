@@ -7,12 +7,86 @@
  */
 
 #include <stdio.h>
-#include "gopheritems.h"
+#include <stdlib.h>
+#include <string.h>
+#include "gophermap.h"
 
+#include "defaults.h"
 
+g_elem *
+new_element(char *line, char *host, unsigned int port)
+{
+    const char del[2] = "\t";
+    char *token;
 
+    #ifdef DEBUG
+    fprintf(stdout, "%s\n", line);
+    fprintf(stdout, "Got type: %c\n", line[0]);
+    #endif
+
+    /**
+     * Tokenize the line and create the item
+     * accordingly
+     */
+
+    if(strlen(line) < MIN_LEN)
+        return NULL;
+
+    g_elem *item = (g_elem*) malloc(sizeof(g_elem));
+    item->type = (char) line[0];
+    line++;
+    token = strtok((line), del);
+    int step = 0;
+    while (token != NULL) {
+        //fprintf(stdout, "Got Token: %s\n", token);
+        switch(step) {
+            case 0:
+                fprintf(stdout, "Got Description: %s\n", token);
+                item->description = token;
+                break;
+            case 1:
+                fprintf(stdout, "Got Selector: %s\n", token);
+                item->selector = token;
+                break;
+            case 2:
+                fprintf(stdout, "Got Host: %s\n", token);
+                item->host = token;
+                break;
+            case 3:
+                fprintf(stdout, "Got Port: %s\n", token);
+                item->port = atoi(token);
+                break;
+            default:
+                break;
+        }
+        step++;
+        token = strtok(NULL, del);
+    }
+    if(item->host == NULL || item->port == NULL) {
+        item->host = host;
+        item->port = port;
+    }
+    return NULL;
+}
+
+int
+isvalid_type(char *c)
+{
+    return ( (
+		( c[0] >= '0' && c[0] <= '9' ) ||
+		( c[0] >= 'A' && c[0] <= 'Z' ) ||
+		( c[0] >= 'a' && c[0] <= 'z' ) ) &&
+        ( strchr(c, '\t') || c[0] == 'i' ) );
+}
+
+/**
+ * Parse the gphermap passed to the parser:
+ * 1. analyze the line structure (and check type)
+ * 2. line by line, create a list of items that represent the parsed map
+ * 3. if rhost/rport are null (not valid), add the default host + port to the struct
+ */
 void
-parse_gophermap(const char *fpath, g_elem **elements, const char *rhost, unsigned int rport) {
+parse_gophermap(const char *fpath, g_elem **elements, char *rhost, unsigned int rport) {
 
     char *line = NULL;
     size_t size = 0;
@@ -22,16 +96,12 @@ parse_gophermap(const char *fpath, g_elem **elements, const char *rhost, unsigne
 
     for(unsigned int i = 0; getline(&line, &size, f) != -1; i++ ){
 
-        fprintf(stdout, "[LINE]: %s", line);
-        /*
-         * if ( validate_item(line) ){
-
-            elements[i] = new_element( line[0], line+1, rhost, rport );
+        if (isvalid_type(line)) {
+            new_element(line, rhost, rport);
         } else {
-            elements[i] = process_line( 'i', line, rhost, rport );
+            /* it's just an INFO line */
+            fprintf(stdout, "%s", line);
         }
-
-        */
     }
 }
 
