@@ -55,7 +55,7 @@ handlerequest(void *connfd) {
     /**
      * TODO: Here we have the real handling section 
      * of the requested resource according to the protocol
-     *
+     * and the rfc
      */
 }
 

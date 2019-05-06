@@ -12,6 +12,7 @@
 #define ERROR_STRING "3Invalid input\tfake\t(NULL) 0"
 #define TRUE 0
 #define FALSE 1
+#define MIN_LEN 5
 
 typedef enum {
     ISDIR,

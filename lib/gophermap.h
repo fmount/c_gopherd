@@ -34,10 +34,10 @@ enum item_types {
 };
 
 typedef struct element {
-    char *type;
+    char type;
+    char *description;
     char *selector;
-    char *content;
-    // host + port to make a call and retrieve the content ?
+    /* host + port to make a call and retrieve the content */
     int port;
     char *host;
 } g_elem;
@@ -48,8 +48,8 @@ typedef struct element {
  */
 
 g_elem *new_element(char *line, char *host, unsigned int port);
-void parse_gophermap(const char * fpath, g_elem ** elements, const char * rhost, unsigned int rport );
-int validate_item(const char *rline);
+void parse_gophermap(const char * fpath, g_elem ** elements, char * rhost, unsigned int rport );
+int validate_item(char *rline);
 
 
 /**
@@ -66,7 +66,6 @@ int validate_item(const char *rline);
  *
  *  Example:
  *
- *  0Gopher
- *  Introduction<Tab>intro<Tab>gopher.someserver.org<Tab>70
+ *  0Gopher Introduction<Tab>intro<Tab>gopher.someserver.org<Tab>70<CR><LF>
  *
  */
