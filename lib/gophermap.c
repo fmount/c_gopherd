@@ -37,22 +37,24 @@ new_element(char *line, char *host, unsigned int port)
     line++;
     token = strtok((line), del);
     int step = 0;
+    // We can improve this part .. I don't like too much ..
+    item->host = NULL;
+    item->port = -1;
     while (token != NULL) {
-        //fprintf(stdout, "Got Token: %s\n", token);
         switch(step) {
-            case 0:
+            case DESCRIPTION:
                 fprintf(stdout, "Got Description: %s\n", token);
                 item->description = token;
                 break;
-            case 1:
+            case SELECTOR:
                 fprintf(stdout, "Got Selector: %s\n", token);
                 item->selector = token;
                 break;
-            case 2:
+            case HOST:
                 fprintf(stdout, "Got Host: %s\n", token);
                 item->host = token;
                 break;
-            case 3:
+            case PORT:
                 fprintf(stdout, "Got Port: %s\n", token);
                 item->port = atoi(token);
                 break;
@@ -62,11 +64,11 @@ new_element(char *line, char *host, unsigned int port)
         step++;
         token = strtok(NULL, del);
     }
-    if(item->host == NULL || item->port == NULL) {
+    if(item->host == NULL || item->port == -1) {
         item->host = host;
         item->port = port;
     }
-    return NULL;
+    return item;
 }
 
 int
@@ -88,21 +90,30 @@ isvalid_type(char *c)
 void
 parse_gophermap(const char *fpath, g_elem **elements, char *rhost, unsigned int rport) {
 
+    if(rhost == NULL || rport == 0)
+        return;
+
     char *line = NULL;
     size_t size = 0;
-
+    g_elem *cur = NULL;
     FILE *f = fopen(fpath, "r");
     if(!f) return;
 
     for(unsigned int i = 0; getline(&line, &size, f) != -1; i++ ){
 
         if (isvalid_type(line)) {
-            new_element(line, rhost, rport);
+            cur = new_element(line, rhost, rport);
+            #ifdef DEBUG
+            fprintf(stdout, "[TYPE]: %c\n[DESC]: %s\n[SELEC]: %s\n[HOST]: %s\n[PORT]: %d\n",
+                    cur->type, cur->description, cur->selector, cur->host, cur->port);
+            #endif
         } else {
-            /* it's just an INFO line */
+            /* it's just an INFO line, let's print it .. */
             fprintf(stdout, "%s", line);
         }
     }
+    free(line);
+    free(cur);
 }
 
 /**
@@ -118,7 +129,7 @@ main(int argc, char **argv) {
 
     fprintf(stdout, "A GOPHER PARSER AND VALIDATOR\n");
 
-    parse_gophermap("../example/gophermap", NULL, NULL, 0);
+    parse_gophermap("../example/gophermap", NULL, "127.0.0.1", 70);
 
     return 0;
 }

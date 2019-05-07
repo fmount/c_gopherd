@@ -19,3 +19,9 @@ typedef enum {
     ISFILE,
 } FS_RESOURCE;
 
+enum item_step {
+    DESCRIPTION = 0,
+    SELECTOR = 1,
+    HOST = 2,
+    PORT = 3,
+};
