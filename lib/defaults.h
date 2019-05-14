@@ -1,3 +1,6 @@
+#ifndef DEFAULTS_H
+#define DEFAULTS_H
+
 #include<stdio.h>
 
 /**
@@ -13,6 +16,8 @@
 #define TRUE 0
 #define FALSE 1
 #define MIN_LEN 5
+#define CRLF "\r\t"
+#define BUFFER_SIZE 1024
 
 typedef enum {
     ISDIR,
@@ -25,3 +30,5 @@ enum item_step {
     HOST = 2,
     PORT = 3,
 };
+
+#endif

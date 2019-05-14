@@ -114,7 +114,36 @@ parse_gophermap(const char *fpath, g_elem **elements, char *rhost, unsigned int 
     }
     free(line);
     free(cur);
+    fclose(f);
 }
+
+void
+g_send(int sock, char *m)
+{
+    FILE *fd = fdopen(sock, "wa");
+    if(m == NULL || strlen(m) <= 2)
+        fprintf(fd, "%s\n", CRLF);
+    else
+        fprintf(fd, "i%s%s\n", m, CRLF);
+    fflush(fd);
+}
+
+void
+g_elem_send(int sock, g_elem *e)
+{
+    FILE *fd = fdopen(sock, "wa");
+    if (e == NULL)
+        return;
+    fprintf(fd, "%c%s\t%s\t%s\t%d%s\n",
+            e->type,
+            e->description,
+            e->selector,
+            e->host,
+            e->port,
+            CRLF);
+    fflush(fd);
+}
+
 
 /**
  * A simple main to help testing in a standalone way
@@ -124,7 +153,7 @@ parse_gophermap(const char *fpath, g_elem **elements, char *rhost, unsigned int 
  *
  */
 
-int
+/*int
 main(int argc, char **argv) {
 
     fprintf(stdout, "A GOPHER PARSER AND VALIDATOR\n");
@@ -132,4 +161,4 @@ main(int argc, char **argv) {
     parse_gophermap("../example/gophermap", NULL, "127.0.0.1", 70);
 
     return 0;
-}
+}*/

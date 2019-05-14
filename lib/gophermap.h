@@ -19,6 +19,11 @@
  *  ----------------------------
  */
 
+#ifndef GOPHERMAP_H
+#define GOPHERMAP_H
+
+#include "defaults.h"
+
 enum item_types {
     G_FILE='0',
     G_DIR='1',
@@ -50,6 +55,7 @@ typedef struct element {
 g_elem *new_element(char *line, char *host, unsigned int port);
 void parse_gophermap(const char * fpath, g_elem ** elements, char * rhost, unsigned int rport );
 int validate_item(char *rline);
+void g_send(int sock, char *msg);
 
 
 /**
@@ -69,3 +75,5 @@ int validate_item(char *rline);
  *  0Gopher Introduction<Tab>intro<Tab>gopher.someserver.org<Tab>70<CR><LF>
  *
  */
+
+#endif
