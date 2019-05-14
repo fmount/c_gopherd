@@ -6,31 +6,87 @@
  *
  */
 
-#include <netinet/in.h>
-#include <stdlib.h>
+
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <arpa/inet.h> //inet_addr
+#include <arpa/inet.h>
+#include <unistd.h>
 #include <pthread.h> //for threading , link with lpthread
 #include <signal.h>
-#include "server.h"
 
-#include "defaults.h"
+#include  "gophermap.h"
 
-/**
- * Gracefully stop the server
- */
-sig_atomic_t volatile sockfd;
+sig_atomic_t volatile socket_desc;
 
+//the thread function
+void *connection_handler(void *);
+
+int
+start_server(char *addr, int port) {
+    //int socket_desc , client_sock , c;
+    int client_sock , c;
+    struct sockaddr_in server , client;
+
+    //Create socket
+    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+    if (socket_desc == -1)
+    {
+        fprintf(stderr, "Could not create socket\n");
+    }
+    fprintf(stdout, "Socket created\n");
+
+    //Prepare the sockaddr_in structure
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons(port);
+
+    //Bind
+    if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
+    {
+        //print the error message
+        perror("bind failed. Error\n");
+        return 1;
+    }
+    fprintf(stdout, "bind done\n");
+
+    //Listen
+    listen(socket_desc , 3);
+
+    //Accept and incoming connection
+    fprintf(stdout, "Waiting for incoming connections...\n");
+    c = sizeof(struct sockaddr_in);
+
+
+    //Accept and incoming connection
+    fprintf(stdout, "Waiting for incoming connections...\n");
+    c = sizeof(struct sockaddr_in);
+    pthread_t thread_id;
+    while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) ) {
+        fprintf(stdout, "Connection accepted\n");
+        if( pthread_create( &thread_id , NULL ,  connection_handler , (void*) &client_sock) < 0) {
+            fprintf(stderr, "could not create thread\n");
+            return 1;
+        }
+        //Now join the thread , so that we dont terminate before the thread
+        //pthread_join( thread_id , NULL);
+        fprintf(stdout, "Handler assigned\n");
+    }
+    if (client_sock < 0) {
+        perror("accept failed\n");
+        return 1;
+    }
+    return 0;
+}
+
+/* Close the socket and release all the resorces */
 int
 stop_server(int sockfd) {
     fprintf(stdout, "[GSERVER] Gracefully stopping the server\n");
+    pthread_exit(NULL);
     return close(sockfd);
 }
-
 
 static void
 handle_quit(const int sig) {
@@ -40,121 +96,20 @@ handle_quit(const int sig) {
     fprintf(stdout, "My SOCKFD IS: %d\n", sockfd);
 #endif
 
-    /*
-     * TODO: Maybe more handling is required
-     * to check what's coming from stop_server.
-     */
-    stop_server(sockfd);
+    fprintf(stdout, "[GSERVER] Gracefully stopping the server\n");
+    pthread_exit(NULL);
+    close(socket_desc);
     exit(0);
 }
 
-
-void *
-handlerequest(void *connfd) {
-    fprintf(stdout, "[Handling connection] %d\n", *(int *) connfd);
-    /**
-     * TODO: Here we have the real handling section 
-     * of the requested resource according to the protocol
-     * and the rfc
-     */
-}
-
-
-int
-start_server(char *addr, int port) {
-
-    int sockfd;
-    struct sockaddr_in servaddr;
-
-    // socket create and verification
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) {
-        printf("socket creation failed...\n");
-        exit(0);
-    }
-    else
-        printf("Socket successfully created..\n");
-    bzero(&servaddr, sizeof(servaddr));
-
-    // assign IP, PORT
-    servaddr.sin_family = AF_INET;
-    /**
-     * inet_addr is something we need to pass to the
-     * start_server function, and port as well
-     * we can handle also the case in which we pass
-     * ANY to bind INADDR_ANY
-     */
-    //servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_addr.s_addr = inet_addr(addr);
-    servaddr.sin_port = htons(port);
-
-    // Binding newly created socket to given IP and verification
-    if ((bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr))) != 0) {
-        printf("socket bind failed...\n");
-        exit(0);
-    }
-    else
-        printf("Socket successfully binded..\n");
-
-    return sockfd;
-}
-
-void
-serve(int sockfd) {
-    struct sockaddr_in cli;
-    int connfd, len;
-    int *sockfd_clone;
-    // Now server is ready to listen and verification
-    if ((listen(sockfd, 5)) != 0) {
-        printf("Listen failed...\n");
-        exit(0);
-    }
-    else
-        printf("Server listening..\n");
-
-    len = sizeof(struct sockaddr_in);
-
-    /*
-     * Accepting connections and handling requests
-     */
-
-    while((connfd = accept(sockfd, (struct sockaddr *)&cli, (socklen_t *)&len))) {;
-        if (connfd < 0) {
-            printf("server acccept failed...\n");
-            /* TODO: Maybe we just need to notify this scenario without
-             * destroying the world
-             */
-            exit(0);
-        }
-        pthread_t t;
-        sockfd_clone = malloc(1);
-        *sockfd_clone = connfd;
-
-        if(pthread_create(&t, NULL, handlerequest, sockfd_clone) < 0) {
-            perror("Could not create thread to serve the request\n");
-            return;
-        }
-    }
-}
-
-
-
-
 /**
- * MAIN OF THE STANDALONE SERVER 
- *
- * gcc -o server -I ../lib -lpthread -Wimplicit-function-declaration server.c
- *
- * */
-int
-main(int argc, char **argv) {
+ * gcc -o c_gopher -I ../lib -lpthread -Wimplicit-function-declaration server.c ../lib/*.c
+ */
 
-    /**
-     * TODO: Check parameters, implement a basic cli
-     * that reads some configurations
-     *
-     */
-    sockfd = start_server("127.0.0.1", DEFAULT_PORT);
+int
+main(int argc , char *argv[])
+{
+    start_server("127.0.0.1", 70);
 
     struct sigaction act;
 
@@ -162,5 +117,43 @@ main(int argc, char **argv) {
     act.sa_sigaction = &handle_quit;
 
     sigaction(SIGINT, &act, NULL);
-    serve(sockfd);
+    return 0;
+}
+
+/*
+ * This will handle connection for each client
+ * */
+void *
+connection_handler(void *socket_desc) {
+    //Get the socket descriptor
+    int sock = *(int*)socket_desc;
+    int read_size;
+    char *message , client_message[BUFFER_SIZE];
+
+    //Receive a message from client
+    //while( (read_size = recv(sock , client_message , BUFFER_SIZE , 0)) > 0 )
+    //{
+        //read_size = recv(sock , client_message , BUFFER_SIZE , 0);
+        read_size = read(sock, client_message, BUFFER_SIZE);
+        //end of string marker
+        client_message[read_size] = '\0';
+        fprintf(stdout, "RECV %s\n", client_message);
+        //Send the message back to client
+        g_send(sock, client_message);
+
+        //clear the message buffer
+        memset(client_message, 0, BUFFER_SIZE);
+    //}
+
+    if(read_size == 0)
+    {
+        fprintf(stderr, "Client disconnected\n");
+        fflush(stdout);
+    }
+    else if(read_size == -1)
+    {
+        fprintf(stderr, "recv failed\n");
+    }
+    pthread_exit(NULL);
+    return 0;
 }
