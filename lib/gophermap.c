@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 #include "gophermap.h"
 
 #include "defaults.h"
@@ -144,6 +145,48 @@ g_elem_send(int sock, g_elem *e)
     fflush(fd);
 }
 
+void
+g_send_resource(int sock, char * path)
+{
+    FILE *f = fopen(path, "r");
+    FILE *fd = fdopen(sock, "wa");
+
+    if(f == NULL)
+        return;
+
+    fseek(f, 0L, SEEK_END);
+    long len = ftell(f);
+    rewind(f);
+
+    char * line = (char *) malloc(len * sizeof(char));
+    if (fread(line, len, 1, f) == 1) {
+        //send(sock, line, len, 0);
+        fprintf(fd, "%s\n", line);
+    }
+    fflush(fd);
+    free(line);
+    fclose(f);
+    fclose(fd);
+}
+
+void
+g_send_dir(int sock, char * path)
+{
+    FILE *fd = fdopen(sock, "wa");
+    DIR *d = opendir(path);
+    struct dirent * entry = NULL;
+
+    if(d == NULL) {
+        fprintf(stderr, "Error listing dirs\n");
+        return;
+    }
+
+    while((entry = readdir(d)) != NULL ) {
+        if(entry->d_name[0] != '.')
+            fprintf(fd, "%s\n", (entry)->d_name);
+    }
+    fflush(fd);
+}
 
 /**
  * A simple main to help testing in a standalone way
