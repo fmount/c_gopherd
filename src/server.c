@@ -138,8 +138,13 @@ connection_handler(void *socket_desc) {
         //end of string marker
         client_message[read_size] = '\0';
         fprintf(stdout, "RECV %s\n", client_message);
-        //Send the message back to client
-        g_send(sock, client_message);
+
+        /**
+         * TESTING FUNCTIONS ..
+         */
+        //g_send(sock, client_message);
+        //g_send_resource(sock, "../example/backtohole.txt");
+        g_send_dir(sock, "../example");
 
         //clear the message buffer
         memset(client_message, 0, BUFFER_SIZE);
