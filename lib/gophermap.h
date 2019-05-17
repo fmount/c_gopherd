@@ -24,7 +24,7 @@
 
 #include "defaults.h"
 
-enum item_types {
+enum allowed_types {
     G_FILE='0',
     G_DIR='1',
     G_ERROR='3',
@@ -35,7 +35,6 @@ enum item_types {
     G_GIF='g',
     G_PNG='p',
     G_PDF='d',
-    G_ITEM=0
 };
 
 typedef struct element {
@@ -56,6 +55,7 @@ g_elem *new_element(char *line, char *host, unsigned int port);
 void parse_gophermap(const char * fpath, g_elem ** elements, char * rhost, unsigned int rport );
 int validate_item(char *rline);
 void g_send(int sock, char *msg);
+void g_send_dir(int sock, char * path);
 
 
 /**

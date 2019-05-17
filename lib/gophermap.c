@@ -10,9 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-#include "gophermap.h"
 
-#include "defaults.h"
+#include "gophermap.h"
 
 g_elem *
 new_element(char *line, char *host, unsigned int port)
@@ -76,9 +75,9 @@ int
 isvalid_type(char *c)
 {
     return ( (
-		( c[0] >= '0' && c[0] <= '9' ) ||
-		( c[0] >= 'A' && c[0] <= 'Z' ) ||
-		( c[0] >= 'a' && c[0] <= 'z' ) ) &&
+        ( c[0] >= '0' && c[0] <= '9' ) ||
+        ( c[0] >= 'A' && c[0] <= 'Z' ) ||
+        ( c[0] >= 'a' && c[0] <= 'z' ) ) &&
         ( strchr(c, '\t') || c[0] == 'i' ) );
 }
 
@@ -169,11 +168,55 @@ g_send_resource(int sock, char * path)
     fclose(fd);
 }
 
+char *
+suffix(char * entry)
+{
+    char *dot = strrchr(entry, '.');
+    if(!dot || dot == entry)
+        return "";
+    return dot + 1;
+}
+
+char
+get_type(struct dirent *entry, char * suffix)
+{
+    char type;
+    switch(entry->d_type) {
+        case DT_REG:
+            if (strncmp(suffix, "zip", 3) == 0)
+                type = (char) G_ARCHIVE;
+            else if (strncmp(suffix, "jpg", 3) == 0)
+                type = (char) G_IMAGE;
+            else if (strncmp(suffix, "png", 3) == 0)
+                type = (char) G_PNG;
+            else if (strncmp(suffix, "pdf", 3) == 0)
+                type = (char) G_PDF;
+            else if (strncmp(suffix, "gif", 3) == 0)
+                type = (char) G_GIF;
+            else
+                type = (char) G_FILE;
+            break;
+        case DT_DIR:
+            type = (char) G_DIR;
+            break;
+        default:
+            type = (char) G_ERROR;
+            break;
+    }
+    #ifdef DEBUG
+    fprintf(stdout, "[DEBUG] Type detected: %c\n", type);
+    #endif
+    return type;
+}
+
 void
 g_send_dir(int sock, char * path)
 {
     FILE *fd = fdopen(sock, "wa");
     DIR *d = opendir(path);
+    char *e;
+    char *selector;
+    char type;
     struct dirent * entry = NULL;
 
     if(d == NULL) {
@@ -182,9 +225,27 @@ g_send_dir(int sock, char * path)
     }
 
     while((entry = readdir(d)) != NULL ) {
-        if(entry->d_name[0] != '.')
-            fprintf(fd, "%s\n", (entry)->d_name);
+        fprintf(stdout, "START WITH %c\n", entry->d_name[0]);
+        if(entry->d_name[0] != '.') {
+            selector = malloc( sizeof(char)*(strlen(path)+strlen(entry->d_name)+2) );
+            e = suffix(entry->d_name);
+            type = get_type(entry, e);
+            strncpy(selector, path, strlen(path));
+            /* Do I need to add a trailing '/' ? */
+            g_elem * gopher_item = (g_elem*)malloc(sizeof(g_elem));
+            gopher_item->type = type;
+            gopher_item->description = entry->d_name;
+            gopher_item->selector = selector;
+
+            gopher_item->host = "test";
+            gopher_item->port = 70;
+
+            g_elem_send(sock, gopher_item);
+            free(gopher_item);
+            free(selector);
+        }
     }
+    g_send(sock, NULL);
     fflush(fd);
 }
 
