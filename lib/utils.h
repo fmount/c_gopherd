@@ -30,6 +30,15 @@ void error(char* msg) {
     exit(1);
 }
 
+char *
+ext(char* entry)
+{
+    char *dot = strrchr(entry, '.');
+    if(!dot || dot == entry)
+        return "";
+    return dot + 1;
+}
+
 /*
  * wrapper for write() with 
  * error handling 

@@ -142,10 +142,8 @@ connection_handler(void *socket_desc) {
         /**
          * TESTING FUNCTIONS ..
          */
-        //g_send(sock, client_message);
-        //g_send_resource(sock, "../example/backtohole.txt");
+        //g_send_resource(sock, "../example/gophermap");
         g_send_dir(sock, "../example");
-
         //clear the message buffer
         memset(client_message, 0, BUFFER_SIZE);
     //}
