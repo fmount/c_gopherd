@@ -134,7 +134,7 @@ g_elem_send(int sock, g_elem *e)
     FILE *fd = fdopen(sock, "wa");
     if (e == NULL)
         return;
-    fprintf(fd, "%c%s\t%s\t%s\t%d%s\n",
+    fprintf(fd, "%c%s\t%s\t%s\t%d%s",
             e->type,
             e->description,
             e->selector,
@@ -159,13 +159,11 @@ g_send_resource(int sock, char * path)
 
     char * line = (char *) malloc(len * sizeof(char));
     if (fread(line, len, 1, f) == 1) {
-        //send(sock, line, len, 0);
-        fprintf(fd, "%s\n", line);
+        fprintf(fd, "%s%s", line, CRLF);
     }
     fflush(fd);
     free(line);
     fclose(f);
-    fclose(fd);
 }
 
 char *
@@ -241,6 +239,7 @@ g_send_dir(int sock, char * path)
             gopher_item->port = 70;
 
             g_elem_send(sock, gopher_item);
+            g_send(sock, NULL);
             free(gopher_item);
             free(selector);
         }
