@@ -113,11 +113,27 @@ main(int argc , char *argv[])
 
     struct sigaction act;
 
-    act.sa_flags =  SA_SIGINFO;
+/*  act.sa_flags =  SA_SIGINFO;
     act.sa_sigaction = &handle_quit;
 
     sigaction(SIGINT, &act, NULL);
+*/
     return 0;
+}
+
+int
+close_sock(int fd, int linger) {
+    if (linger) {
+        struct linger opts;
+        opts.l_onoff = 1;
+        opts.l_linger = 30;
+        if( setsockopt(fd, SOL_SOCKET, SO_LINGER, &opts, sizeof(opts)) < 0 )
+            perror(NULL);
+    }
+
+    if( close( fd ) < 0 )
+        return 0;
+    return 1;
 }
 
 /*
@@ -130,31 +146,33 @@ connection_handler(void *socket_desc) {
     int read_size;
     char *message , client_message[BUFFER_SIZE];
 
+    int ptr = 0;
     //Receive a message from client
-    //while( (read_size = recv(sock , client_message , BUFFER_SIZE , 0)) > 0 )
-    //{
+    while( (read_size = recv(sock , client_message , BUFFER_SIZE , 0)) > 0 )
+    {
         //read_size = recv(sock , client_message , BUFFER_SIZE , 0);
-        read_size = read(sock, client_message, BUFFER_SIZE);
-        //end of string marker
-        client_message[read_size] = '\0';
-        fprintf(stdout, "RECV %s\n", client_message);
+        //read_size = read(sock, client_message, BUFFER_SIZE);
+        //read_size = read(sock, client_message + ptr, BUFFER_SIZE - ptr);
+        //fprintf(stdout, "RECV %s", client_message);
+        if(read_size <= 0) {
+            client_message[read_size] = '\0';
+            fprintf(stdout, "RECV %s", client_message);
+        }
 
-        /**
-         * TESTING FUNCTIONS ..
-         */
         //g_send_resource(sock, "../example/gophermap");
         g_send_dir(sock, "../example");
+        g_send(sock, ".");
         //clear the message buffer
         memset(client_message, 0, BUFFER_SIZE);
-    //}
+        close_sock(sock, 1);
 
-    if(read_size == 0)
-    {
+    }
+
+    if(read_size == 0) {
         fprintf(stderr, "Client disconnected\n");
         fflush(stdout);
     }
-    else if(read_size == -1)
-    {
+    else if(read_size == -1) {
         fprintf(stderr, "recv failed\n");
     }
     pthread_exit(NULL);

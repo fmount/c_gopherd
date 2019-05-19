@@ -56,6 +56,7 @@ void parse_gophermap(const char * fpath, g_elem ** elements, char * rhost, unsig
 int validate_item(char *rline);
 void g_send(int sock, char *msg);
 void g_send_dir(int sock, char * path);
+void g_send_resource(int sock, char * path);
 
 
 /**

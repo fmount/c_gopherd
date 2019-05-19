@@ -11,13 +11,16 @@
  *
  */
 
-#define DEFAULT_PORT 70
 #define ERROR_STRING "3Invalid input\tfake\t(NULL) 0"
 #define TRUE 0
 #define FALSE 1
 #define MIN_LEN 5
 #define CRLF "\r\t"
 #define BUFFER_SIZE 1024
+
+#define DEFAULT_HOST "localhost"
+#define DEFAULT_PORT 70
+#define GROOT "example/gophermap"
 
 typedef enum {
     ISDIR,
