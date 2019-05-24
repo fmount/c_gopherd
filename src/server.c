@@ -144,37 +144,31 @@ connection_handler(void *socket_desc) {
     //Get the socket descriptor
     int sock = *(int*)socket_desc;
     int read_size;
-    char *message , client_message[BUFFER_SIZE];
+    char request[BUFFER_SIZE];
 
     int ptr = 0;
     //Receive a message from client
-    while( (read_size = recv(sock , client_message , BUFFER_SIZE , 0)) > 0 )
+    while( (read_size = recv(sock , request , BUFFER_SIZE , 0)) > 0 )
     {
-        //read_size = recv(sock , client_message , BUFFER_SIZE , 0);
-        //read_size = read(sock, client_message, BUFFER_SIZE);
-        //read_size = read(sock, client_message + ptr, BUFFER_SIZE - ptr);
-        //fprintf(stdout, "RECV %s", client_message);
         if(read_size <= 0) {
-            client_message[read_size] = '\0';
-            fprintf(stdout, "RECV %s", client_message);
+            request[read_size] = '\0';
+            fprintf(stdout, "RECV %s", request);
         }
 
-        //g_send_resource(sock, "../example/gophermap");
-        g_send_dir(sock, "../example");
+        /**
+         * TODO: HANDLE THE REQUEST ACCORDING TO THE
+         * REQUESTED PATH: ISFILE, ISDIR, ISROOT
+         */
+        g_send_resource(sock, "../example/gophermap");
+        //g_send_dir(sock, "../example");
         g_send(sock, ".");
+
         //clear the message buffer
-        memset(client_message, 0, BUFFER_SIZE);
+        memset(request, 0, BUFFER_SIZE);
         close_sock(sock, 1);
 
     }
 
-    if(read_size == 0) {
-        fprintf(stderr, "Client disconnected\n");
-        fflush(stdout);
-    }
-    else if(read_size == -1) {
-        fprintf(stderr, "recv failed\n");
-    }
     pthread_exit(NULL);
     return 0;
 }
