@@ -29,6 +29,8 @@ hMain Site	mainsite.html	localhost	70
 1Dir1	dir1	localhost	70
 1Dir2	dir2	localhost	70
 9My pdf file	file2.pdf	localhost	70
+Ipacman	example/pacman.jpg	localhost	70
+Ipacman2	pacman.jpg	test.gopher.org	70
 
 0Why is Gopher Still Relevant?	/gopher/relevance.txt	gopher.floodgap.com 70
 hAn http link		http://sdf.lonestar.org/

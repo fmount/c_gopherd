@@ -16,7 +16,9 @@
 #include <pthread.h> //for threading , link with lpthread
 #include <signal.h>
 
-#include  "gophermap.h"
+#include "utils.h"
+#include "gophermap.h"
+
 
 sig_atomic_t volatile socket_desc;
 
@@ -91,10 +93,10 @@ stop_server(int sockfd) {
 static void
 handle_quit(const int sig) {
 
-#ifdef DEBUG
+    #ifdef DEBUG
     fprintf(stdout, "Caught signal %d\n", sig);
-    fprintf(stdout, "My SOCKFD IS: %d\n", sockfd);
-#endif
+    fprintf(stdout, "My SOCKFD IS: %d\n", socket_desc);
+    #endif
 
     fprintf(stdout, "[GSERVER] Gracefully stopping the server\n");
     pthread_exit(NULL);
@@ -103,7 +105,7 @@ handle_quit(const int sig) {
 }
 
 /**
- * gcc -o c_gopher -I ../lib -lpthread -Wimplicit-function-declaration server.c ../lib/*.c
+ * gcc -o c_gopher -I ../lib -lpthread -D _GNU_SOURCE server.c ../lib/*.c
  */
 
 int
@@ -145,6 +147,7 @@ connection_handler(void *socket_desc) {
     int sock = *(int*)socket_desc;
     int read_size;
     char request[BUFFER_SIZE];
+    char *req_path;
 
     int ptr = 0;
     //Receive a message from client
@@ -152,21 +155,31 @@ connection_handler(void *socket_desc) {
     {
         if(read_size <= 0) {
             request[read_size] = '\0';
-            fprintf(stdout, "RECV %s", request);
+            //fprintf(stdout, "RECV %s", request);
         }
+        req_path = build_path(request);
+        #ifdef DEBUG
+        fprintf(stdout, "Client is looking for: %s with len %d\n", request, strlen(request));
+        fprintf(stdout, "Retrieving data at path: %s with len %d\n", req_path, strlen(req_path));
+        #endif
 
-        /**
-         * TODO: HANDLE THE REQUEST ACCORDING TO THE
-         * REQUESTED PATH: ISFILE, ISDIR, ISROOT
-         */
-        g_send_resource(sock, "../example/gophermap");
-        //g_send_dir(sock, "../example");
+        if(strcmp(req_path, GROOT) == 0)
+            g_send_resource(sock, "gophermap");
+        else if(exists(req_path, ISDIR) == TRUE) {
+            //fprintf(stdout, "ISDIR\n");
+            g_send_dir(sock, req_path);
+        }
+        //else if(exists(req_path, ISFILE) != FALSE) {
+        else {
+            //fprintf(stdout, "ISFILE\n");
+            g_send_resource(sock, req_path);
+        }
         g_send(sock, ".");
 
         //clear the message buffer
         memset(request, 0, BUFFER_SIZE);
         close_sock(sock, 1);
-
+        //fprintf(stdout, "END\n");
     }
 
     pthread_exit(NULL);

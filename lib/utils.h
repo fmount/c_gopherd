@@ -5,7 +5,6 @@
  *  Copyright (c) 2019, fmount <fmount@inventati.org>
  *
  */
-
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -39,15 +38,22 @@ ext(char* entry)
     return dot + 1;
 }
 
-/*
- * wrapper for write() with 
- * error handling 
- *
- * */
-void
-write_data(int sockfd, const char* data, int len) {
-    if (write(sockfd, data, len) < 0)
-        error("[BUF] Error writing sock");
+char *
+build_path(char *request)
+{
+    char *result;
+
+    if(request[0] == '\0' || strcmp(request, CRLF) == 0) {
+        fprintf(stdout, "request is empty");
+        return (char *)GROOT;
+    }
+    asprintf(&result, "%s/%s", GROOT, request + (request[0] == '/' ? 1 : 0));
+    result[strlen(result) -2] = '\0';
+    #ifdef DEBUG
+    fprintf(stdout, "Client Request is: %s\n", request);
+    fprintf(stdout, "[BUILD] PATH is %s with len %d\n", result, strlen(result));
+    #endif
+    return result;
 }
 
 int
@@ -55,18 +61,18 @@ exists(const char *resource, int mode) {
     struct stat sb;
     int exist;
 
+    if(resource == NULL)
+        return FALSE;
     /*
      * mode = ISDIR|ISFILE;
-     * MODE COULD BE ISDIR/ISFILE
      */
-
     switch(mode) {
         case ISDIR:
-            exist = (stat(resource, &sb) == 0 && \
+            exist = (lstat((char*)resource, &sb) == 0 && \
              S_ISDIR(sb.st_mode)) ? (TRUE) : (FALSE);
             break;
         case ISFILE:
-             exist = (stat(resource, &sb) == 0 && \
+             exist = (lstat((char*)resource, &sb) == 0 && \
               S_ISREG(sb.st_mode)) ? (TRUE) : (FALSE);
              break;
         default:
@@ -74,51 +80,4 @@ exists(const char *resource, int mode) {
              break;
     }
     return exist;
-}
-
-
-/*
- * write a file to socket 
- * TODO: I need to optimize this 
- * function
- *
- * */
-void printfile(int sockfd, const char* path) {
-
-    /* open file */
-    FILE* f = fopen(path, "rb");
-
-    if(f == 0) {
-        /* error reading file */
-        write_data(sockfd, ERROR_STRING, strlen(ERROR_STRING));
-    }
-    else {
-        /* line buffer */
-        char* buf = NULL;
-
-        /* line length */
-        size_t len = 0;
-
-        /* bytes read */
-        ssize_t read = 0;
-
-        while((read = getline(&buf, &len, f)) != -1) {
-            /* allocate space for adjusted line */
-            char* line = calloc(read + 2, sizeof(char));
-
-            /* replace \n with \r\n */
-            strlcpy(line, buf, read);
-            strlcat(line, "\r\n\0", read + 2);
-
-            /* write line to socket */
-            write_data(sockfd, line, strlen(line));
-
-            /* free buffers */
-            free(buf);
-            free(line);
-        }
-
-        /* close file */
-        fclose(f);
-    }
 }
