@@ -223,22 +223,32 @@ g_send_dir(int sock, char * path)
     }
 
     while((entry = readdir(d)) != NULL ) {
+        #ifdef DEBUG
         fprintf(stdout, "START WITH %c\n", entry->d_name[0]);
+        #endif
         if(entry->d_name[0] != '.') {
             selector = malloc( sizeof(char)*(strlen(path)+strlen(entry->d_name)+2) );
             e = suffix(entry->d_name);
             type = get_type(entry, e);
-            strncpy(selector, path, strlen(path));
+
+            //strncpy(selector, path, strlen(path));
+
             /* Do I need to add a trailing '/' ? */
             g_elem * gopher_item = (g_elem*)malloc(sizeof(g_elem));
             gopher_item->type = type;
             gopher_item->description = entry->d_name;
-            gopher_item->selector = selector;
 
-            gopher_item->host = "test";
+            gopher_item->selector = selector;
+            asprintf(&gopher_item->selector, "%s", entry->d_name);
+            /**
+             * Change to default values
+             * unless they're specified
+             */
+            gopher_item->host = "localhost";
             gopher_item->port = 70;
 
             g_elem_send(sock, gopher_item);
+
             g_send(sock, NULL);
             free(gopher_item);
             free(selector);
