@@ -16,8 +16,8 @@
 #include <pthread.h> //for threading , link with lpthread
 #include <signal.h>
 
-#include "utils.h"
 #include "gophermap.h"
+#include "utils.h"
 
 
 sig_atomic_t volatile socket_desc;
@@ -155,31 +155,30 @@ connection_handler(void *socket_desc) {
     {
         if(read_size <= 0) {
             request[read_size] = '\0';
-            //fprintf(stdout, "RECV %s", request);
+            fprintf(stdout, "RECV %s", request);
         }
+        /* TODO: Check the end of line of the request .. */
+
         req_path = build_path(request);
         #ifdef DEBUG
         fprintf(stdout, "Client is looking for: %s with len %d\n", request, strlen(request));
         fprintf(stdout, "Retrieving data at path: %s with len %d\n", req_path, strlen(req_path));
+        fprintf(stdout, "GROOT: %s with len %d\n", GROOT, strlen(GROOT));
         #endif
 
-        if(strcmp(req_path, GROOT) == 0)
-            g_send_resource(sock, "gophermap");
-        else if(exists(req_path, ISDIR) == TRUE) {
-            //fprintf(stdout, "ISDIR\n");
-            g_send_dir(sock, req_path);
+        if(isRoot(req_path) == 0) {
+            asprintf(&req_path, "%s%s", req_path, "gophermap");
+            g_send_resource(sock, req_path);
         }
-        //else if(exists(req_path, ISFILE) != FALSE) {
-        else {
-            //fprintf(stdout, "ISFILE\n");
+        else if(exists(req_path, ISDIR) == TRUE) {
+            g_send_dir(sock, req_path);
+        } else {
             g_send_resource(sock, req_path);
         }
         g_send(sock, ".");
-
         //clear the message buffer
         memset(request, 0, BUFFER_SIZE);
         close_sock(sock, 1);
-        //fprintf(stdout, "END\n");
     }
 
     pthread_exit(NULL);

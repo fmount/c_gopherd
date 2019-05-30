@@ -5,6 +5,9 @@
  *  Copyright (c) 2019, fmount <fmount@inventati.org>
  *
  */
+
+#ifndef UTILS_H
+#define UTILS_H
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -81,3 +84,4 @@ exists(const char *resource, int mode) {
     }
     return exist;
 }
+#endif
