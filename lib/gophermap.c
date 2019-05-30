@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <dirent.h>
 
 #include "gophermap.h"
@@ -124,7 +125,7 @@ g_send(int sock, char *m)
     if(m == NULL || strlen(m) <= 2)
         fprintf(fd, "%s\n", CRLF);
     else
-        fprintf(fd, "i%s%s\n", m, CRLF);
+        fprintf(fd, "%s%s", m, CRLF);
     fflush(fd);
 }
 
@@ -134,6 +135,7 @@ g_elem_send(int sock, g_elem *e)
     FILE *fd = fdopen(sock, "wa");
     if (e == NULL)
         return;
+
     fprintf(fd, "%c%s\t%s\t%s\t%d%s",
             e->type,
             e->description,
@@ -205,6 +207,26 @@ get_type(struct dirent *entry, char * suffix)
     fprintf(stdout, "[DEBUG] Type detected: %c\n", type);
     #endif
     return type;
+}
+
+int
+isRoot(char * path)
+{
+    struct stat sb;
+
+    if((lstat((char*)path, &sb) != 0 || \
+                ! S_ISDIR(sb.st_mode)))
+            return FALSE;
+
+    DIR *d = opendir(path);
+    struct dirent * entry = NULL;
+
+    while((entry = readdir(d)) != NULL) {
+        if(strncmp(entry->d_name, "gophermap", strlen("gophermap")) == 0) {
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 void

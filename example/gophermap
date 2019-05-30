@@ -12,11 +12,13 @@ This is a s(i|a)mple content of a gophermap.
 
 Learn more about me:
 
-0Intro		backtohole.txt
-0About Me	about.txt
-1Blog		/blog
-0Contact Me contact.txt
-1GPG		gpg.txt
+0Intro	backtohole.txt	localhost	70
+0About Me	about.txt	localhost	70
+1collection	/collection	localhost	70
+0Contact Me contact.txt localhost	70
+0GPG	gpg.txt localhost	70
+Ipacman	pacman.jpg	localhost 70
+1fmount private Space	user1/	localhost	70
 
 
 1Books		/books
@@ -24,13 +26,13 @@ Learn more about me:
 
 Some external links:
 
-hMy Github	github.html	localhost	70
+hMy Github	github.html localhost	70
 hMain Site	mainsite.html	localhost	70
 1Dir1	dir1	localhost	70
 1Dir2	dir2	localhost	70
 9My pdf file	file2.pdf	localhost	70
-Ipacman	example/pacman.jpg	localhost	70
-Ipacman2	pacman.jpg	test.gopher.org	70
+Ipacman example/pacman.jpg	localhost	70
+Ipacman2	pacman.jpg	test.gopher.org 70
 
 0Why is Gopher Still Relevant?	/gopher/relevance.txt	gopher.floodgap.com 70
 hAn http link		http://sdf.lonestar.org/
