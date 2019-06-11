@@ -220,7 +220,6 @@ isRoot(char * path)
 
     DIR *d = opendir(path);
     struct dirent * entry = NULL;
-
     while((entry = readdir(d)) != NULL) {
         if(strncmp(entry->d_name, "gophermap", strlen("gophermap")) == 0) {
             return TRUE;

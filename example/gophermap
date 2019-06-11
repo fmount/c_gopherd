@@ -1,31 +1,31 @@
- / ____|		   | |			   | |	| |		| |
-| |  __  ___  _ __ | |__   ___ _ __| |__| | ___ | | ___
-| | |_ |/ _ \| '_ \| '_ \ / _ \ '__|  __  |/ _ \| |/ _ \
-| |__| | (_) | |_) | | | |	__/ |  | |	| | (_) | |  __/
- \_____|\___/| .__/|_| |_|\___|_|  |_|	|_|\___/|_|\___|
-			 | |
-			 |_|
-
-
-My name is fmount and I am a Computer Engineer.
-This is a s(i|a)mple content of a gophermap.
-
-Learn more about me:
-
+i/ ____|            | |             | |  | |     | |		fake	(NULL)	0
+i| |  __  ___  _ __ | |__   ___ _ __| |__| | ___ | | ___		fake	(NULL)	0
+i| | |_ |/ _ \| '_ \| '_ \ / _ \ '__|  __  |/ _ \| |/ _ \		fake	(NULL)	0
+i| |__| | (_) | |_) | | | |	__/ |  | |   | | (_) | |  __/		fake	(NULL)	0
+i \_____|\___/| .__/|_| |_|\___|_| |_|   |_|\___/|_|\___|		fake	(NULL)	0
+i             | |		fake	(NULL)	0
+i             |_|		fake	(NULL)	0
+i		fake	(NULL)	0
+i		fake	(NULL)	0
+iMy name is fmount and I am a Computer Engineer.		fake	(NULL)	0
+iThis is a s(i|a)mple content of a gophermap.		fake	(NULL)	0
+i		fake	(NULL)	0
+iLearn more about me:		fake	(NULL)	0
+i
 0Intro	backtohole.txt	localhost	70
 0About Me	about.txt	localhost	70
 1collection	/collection	localhost	70
-0Contact Me contact.txt localhost	70
-0GPG	gpg.txt localhost	70
+0Contact Me	contact.txt	localhost	70
+0GPG key	gpg.txt	localhost	70
 Ipacman	pacman.jpg	localhost 70
 1fmount private Space	user1/	localhost	70
 
 
-1Books		/books
+1Books		/books	localhost	70
 
 
-Some external links:
-
+iSome external links:		fake	(NULL)	0
+i		fake	(NULL)	0
 hMy Github	github.html localhost	70
 hMain Site	mainsite.html	localhost	70
 1Dir1	dir1	localhost	70
