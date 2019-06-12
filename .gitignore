@@ -4,3 +4,4 @@ bin/*
 *.vim
 *.SRCINFO
 test/
+lib/defaults.h

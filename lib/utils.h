@@ -66,7 +66,7 @@ build_path(char *request)
     result[strlen(result) -2] = '\0';
     #ifdef DEBUG
     fprintf(stdout, "Client Request is: %s\n", request);
-    fprintf(stdout, "[BUILD] PATH is %s with len %d\n", result, strlen(result));
+    fprintf(stdout, "[BUILD] PATH is %s with len %ld\n", result, strlen(result));
     #endif
     return result;
 }
@@ -126,6 +126,17 @@ isRoot(char * path)
         }
     }
     return FALSE;
+}
+
+int
+eol(char * buf, size_t size)
+{
+    char * pos = (char*) memchr(buf, '\n', size);
+    if( pos != NULL ){
+        *(pos-1) = 0;
+        return 1;
+    }
+    return 0;
 }
 
 #endif
