@@ -1,8 +1,8 @@
-i/ ____|            | |             | |  | |     | |		fake	(NULL)	0
-i| |  __  ___  _ __ | |__   ___ _ __| |__| | ___ | | ___		fake	(NULL)	0
-i| | |_ |/ _ \| '_ \| '_ \ / _ \ '__|  __  |/ _ \| |/ _ \		fake	(NULL)	0
-i| |__| | (_) | |_) | | | |	__/ |  | |   | | (_) | |  __/		fake	(NULL)	0
-i \_____|\___/| .__/|_| |_|\___|_| |_|   |_|\___/|_|\___|		fake	(NULL)	0
+i/ ____|            | |            | |  | |     | |		fake	(NULL)	0
+i| |  __  ___  _ __ | |__   ___ _ _| |__| | ___ | |  _		fake	(NULL)	0
+i| | |_ |/ _ \| '_ \| '_ \ / _ \ '_|  __  |/ _ \| |/ _ \		fake	(NULL)	0
+i| |__| | (_) | |_) | | | | |__/ | | |  | | (_) | |  __/		fake	(NULL)	0
+i \_____|\___/| .__/|_| |_|\___|_| |_|  |_|\___/|_|\___|		fake	(NULL)	0
 i             | |		fake	(NULL)	0
 i             |_|		fake	(NULL)	0
 i		fake	(NULL)	0
@@ -23,7 +23,7 @@ Ipacman	pacman.jpg	localhost 70
 
 1Books		/books	localhost	70
 
-
+i		fake	(NULL)	0
 iSome external links:		fake	(NULL)	0
 i		fake	(NULL)	0
 hMy Github	github.html localhost	70
