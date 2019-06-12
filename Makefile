@@ -1,16 +1,17 @@
 PREFIX=usr/bin
-D=1
+D=0
 PRE="requirements.txt"
 SRC=$(wildcard src/*.c)
 LIBS=$(wildcard lib/*.c)
+LB=lib
 OBJECTS=*.o
 TNAME=c_gopherd
 # compiler
 CC=gcc
-CFLAGS=-Wall
+CFLAGS=-Wall -D _GNU_SOURCE
 DEBUG=
-WARNFLAGS=-Wsign-compare -Wint-conversion -fno-stack-protector
-#LDLIBS+=-lm -lcrypto -lgpgme
+#WARNFLAGS=-Wsign-compare -Wint-conversion -fno-stack-protector
+LDLIBS+=-lpthread -lgcc_s
 INCLUDE=-I lib
 OBJECTS=$(patsubst %.c, %.o, $(SRC))
 OBJECTS_LB=$(patsubst %.c, %.o, $(LIBS))
@@ -31,20 +32,23 @@ ifneq ($(wildcard .git/.),)
 endif
 
 
-all: clean build $(OBJECTS) $(OBJECTS_LB)
-	@echo Building the c_otp package
+all: clean config build $(OBJECTS) $(OBJECTS_LB)
+	@echo Building the c_gopherd package
 	$(CC) -o ${PREFIX}/$(TNAME) $(OBJECTS) $(OBJECTS_LB) $(LDLIBS) $(INCLUDE) $(WARNFLAGS)
 
+config:
+	cp $(LB)/defaults.def.h $(LB)/defaults.h
 
 clean:
 	@echo Removing build directories
 	rm -rf ${PREFIX}
 	find . -name "*.o" -exec rm {} \;
+	find . -name "defaults.h" -exec rm {} \;
 
 
 install:
-	@echo Installing the c_otp package on the system
-	cp ${PREFIX}/c_otp ${TARGET}
+	@echo Installing the c_gopherd package on the system
+	cp ${PREFIX}/c_gopherd ${TARGET}
 
 
 %.o: %.c
@@ -64,7 +68,7 @@ build:
 
 
 executable:
-	$(CC) $(SRC) -o $(PREFIX)/c_otp $(LDLIBS) $(INCLUDE) $(DEBUG)
+	$(CC) $(SRC) -o $(PREFIX)/c_gopherd $(LDLIBS) $(INCLUDE) $(DEBUG)
 
 
 .PHONY: install

@@ -8,11 +8,12 @@
 
 #ifndef UTILS_H
 #define UTILS_H
+#include <stdio.h>
 #include <sys/stat.h>
+#include <dirent.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -23,7 +24,8 @@
 #include "defaults.h"
 
 
-/* called this function
+/*
+ * Call this function
  * when a syscall fails
  *
  * */
@@ -31,6 +33,10 @@ void error(char* msg) {
     perror(msg);
     exit(1);
 }
+
+/*
+ * Get the file extension
+ */
 
 char *
 ext(char* entry)
@@ -40,6 +46,12 @@ ext(char* entry)
         return "";
     return dot + 1;
 }
+
+/**
+ * Build the path of the resource
+ * that should be retrieved from
+ * the srv directory of the server
+ */
 
 char *
 build_path(char *request)
@@ -58,6 +70,12 @@ build_path(char *request)
     #endif
     return result;
 }
+
+/*
+ * Check if the resource exists: according
+ * to the `mode` param, check if is a DIR
+ * or a FILE using lstat,
+ */
 
 int
 exists(const char *resource, int mode) {
@@ -84,4 +102,31 @@ exists(const char *resource, int mode) {
     }
     return exist;
 }
+
+/**
+ * Check if the requested path
+ * is the GROOT: if true, we can
+ * return the gophermap
+ */
+
+int
+isRoot(char * path)
+{
+    struct stat sb;
+
+    if((lstat((char*)path, &sb) != 0 || \
+                ! S_ISDIR(sb.st_mode)))
+            return FALSE;
+
+    DIR *d = opendir(path);
+    struct dirent * entry = NULL;
+    while((entry = readdir(d)) != NULL) {
+        if(strncmp(entry->d_name, "gophermap", strlen("gophermap")) == 0) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 #endif
+
