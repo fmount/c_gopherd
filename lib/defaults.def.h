@@ -1,17 +1,16 @@
-#ifndef DEFAULTS_H
-#define DEFAULTS_H
-
-#include<stdio.h>
-
-/**
- * Define some costants to
- * be used during the design/implementation
+/***
  *
- * TODO: These will be replaced by a config file
+ *  GOPHERD SERVER: A gopher server implementation
+ *  that follows rfc1436
+ *  Copyright (c) 2019, fmount <fmount@inventati.org>
  *
  */
 
-#define ERROR_STRING "3Invalid input\tfake\t(NULL) 0"
+#ifndef DEFAULTS_H
+#define DEFAULTS_H
+
+#include <stdio.h>
+
 #define TRUE 0
 #define FALSE 1
 #define MIN_LEN 5
@@ -20,7 +19,7 @@
 
 #define DEFAULT_HOST "localhost"
 #define DEFAULT_PORT 70
-#define GROOT "example/gophermap"
+#define GROOT "/home/fmount/projects/c_gopherd/example"
 
 typedef enum {
     ISDIR,

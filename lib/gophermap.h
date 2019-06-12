@@ -4,19 +4,6 @@
  *  that follows rfc1436
  *  Copyright (c) 2019, fmount <fmount@inventati.org>
  *
- *  ----------------------------
- *  |  type   |Description      |
- *  |---------|-----------------|
- *  |0        |text             |
- *  |1        |gopher menu      |
- *  |5        |zip file         |
- *  |7        |search server    |
- *  |9        |generic binary   |
- *  |I        |generic image    |
- *  |g        |gif image        |
- *  |s        |sound/audio file |
- *  |h        |html             |
- *  ----------------------------
  */
 
 #ifndef GOPHERMAP_H
@@ -47,14 +34,9 @@ typedef struct element {
 } g_elem;
 
 
-/**
- * Prototyping some needed functions to parse gophermap
- */
-
 g_elem *new_element(char *line, char *host, unsigned int port);
 void parse_gophermap(const char * fpath, g_elem ** elements, char * rhost, unsigned int rport );
 int validate_item(char *rline);
-int isRoot(char *path);
 void g_send(int sock, char *msg);
 void g_send_dir(int sock, char * path);
 void g_send_resource(int sock, char * path);
@@ -65,7 +47,7 @@ void g_send_resource(int sock, char * path);
  *
  *  According to protocol, we need to check if a given line is valid:
  *
- *  1. Does begin with a valid ASCII character 
+ *  1. Does begin with a valid ASCII character
  *  2. Has at least one TAB
  *  3. Is at least 5 chars long
  *  4. OR it begins with 'i'
@@ -79,3 +61,4 @@ void g_send_resource(int sock, char * path);
  */
 
 #endif
+

@@ -209,25 +209,6 @@ get_type(struct dirent *entry, char * suffix)
     return type;
 }
 
-int
-isRoot(char * path)
-{
-    struct stat sb;
-
-    if((lstat((char*)path, &sb) != 0 || \
-                ! S_ISDIR(sb.st_mode)))
-            return FALSE;
-
-    DIR *d = opendir(path);
-    struct dirent * entry = NULL;
-    while((entry = readdir(d)) != NULL) {
-        if(strncmp(entry->d_name, "gophermap", strlen("gophermap")) == 0) {
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
 void
 g_send_dir(int sock, char * path)
 {
