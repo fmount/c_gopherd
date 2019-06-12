@@ -8,7 +8,7 @@ OBJECTS=*.o
 TNAME=c_gopherd
 # compiler
 CC=gcc
-CFLAGS=-Wall -D _GNU_SOURCE
+CFLAGS=-Wall -pedantic -D _GNU_SOURCE
 DEBUG=
 #WARNFLAGS=-Wsign-compare -Wint-conversion -fno-stack-protector
 LDLIBS+=-lpthread -lgcc_s

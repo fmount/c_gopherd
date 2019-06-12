@@ -89,8 +89,8 @@ stop_server(int sockfd) {
     return close(sockfd);
 }
 
-static void
-handle_quit(const int sig) {
+void
+handle_quit(int sig) {
 
     #ifdef DEBUG
     fprintf(stdout, "Caught signal %d\n", sig);
@@ -104,7 +104,7 @@ handle_quit(const int sig) {
 }
 
 /**
- * gcc -o c_gopher -I ../lib -lpthread -D _GNU_SOURCE server.c ../lib/*.c
+ * gcc -o c_gopher -Wall -pedantic -I ../lib -lpthread -lgcc_s -D _GNU_SOURCE -DDEBUG server.c ../lib/\*.c
  */
 
 int
@@ -117,15 +117,15 @@ main(int argc , char *argv[])
     exit(-1);
     }*/
 
-    start_server("127.0.0.1", 70);
-
     struct sigaction act;
-
-/*  act.sa_flags =  SA_SIGINFO;
-    act.sa_sigaction = &handle_quit;
+    memset(&act, 0, sizeof(act));
+    act.sa_flags =  SA_SIGINFO;
+    act.sa_handler = &handle_quit;
 
     sigaction(SIGINT, &act, NULL);
-*/
+
+    start_server("127.0.0.1", 70);
+
     return 0;
 }
 
@@ -155,7 +155,6 @@ connection_handler(void *socket_desc) {
     char request[BUFFER_SIZE];
     char *req_path;
 
-    int ptr = 0;
     //Receive a message from client
     while( (read_size = recv(sock , request , BUFFER_SIZE , 0)) > 0 )
     {
@@ -163,13 +162,12 @@ connection_handler(void *socket_desc) {
             request[read_size] = '\0';
             fprintf(stdout, "RECV %s", request);
         }
-        /* TODO: Check the end of line of the request .. */
 
         req_path = build_path(request);
         #ifdef DEBUG
-        fprintf(stdout, "Client is looking for: %s with len %d\n", request, strlen(request));
-        fprintf(stdout, "Retrieving data at path: %s with len %d\n", req_path, strlen(req_path));
-        fprintf(stdout, "GROOT: %s with len %d\n", GROOT, strlen(GROOT));
+        fprintf(stdout, "Client is looking for: %s with len %ld\n", request, strlen(request));
+        fprintf(stdout, "Retrieving data at path: %s with len %ld\n", req_path, strlen(req_path));
+        fprintf(stdout, "GROOT: %s with len %ld\n", GROOT, strlen(GROOT));
         #endif
 
         if(isRoot(req_path) == 0) {
