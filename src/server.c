@@ -110,6 +110,13 @@ handle_quit(const int sig) {
 int
 main(int argc , char *argv[])
 {
+
+    /*chdir(GROOT);
+    if (chroot(GROOT) != 0) {
+       perror("Error chroot");
+    exit(-1);
+    }*/
+
     start_server("127.0.0.1", 70);
 
     struct sigaction act;
@@ -164,12 +171,6 @@ connection_handler(void *socket_desc) {
         fprintf(stdout, "Retrieving data at path: %s with len %d\n", req_path, strlen(req_path));
         fprintf(stdout, "GROOT: %s with len %d\n", GROOT, strlen(GROOT));
         #endif
-
-        /*chdir(GROOT);
-        if (chroot(GROOT) != 0) {
-            perror("Error chroot");
-        exit(-1);
-        }*/
 
         if(isRoot(req_path) == 0) {
             asprintf(&req_path, "%s%s", req_path, "gophermap");
