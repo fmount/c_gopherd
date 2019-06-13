@@ -1,7 +1,8 @@
-bin/*
+usr/bin/*
 *.todo
 *.o
 *.vim
 *.SRCINFO
 test/
 lib/defaults.h
+src/c_gopherd

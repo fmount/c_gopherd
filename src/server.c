@@ -18,6 +18,7 @@
 
 #include "gophermap.h"
 #include "utils.h"
+#include "arg.h"
 
 sig_atomic_t volatile socket_desc;
 
@@ -103,8 +104,15 @@ handle_quit(int sig) {
     exit(0);
 }
 
+static void
+usage(char **argv)
+{
+    fprintf(stdout, "usage: %s [-h host] [-p port] [(-s|--serve path) | [-v]\n", argv[0]);
+}
+
 /**
- * gcc -o c_gopher -Wall -pedantic -I ../lib -lpthread -lgcc_s -D _GNU_SOURCE -DDEBUG server.c ../lib/\*.c
+ * gcc -o c_gopher -Wall -pedantic -I ../lib -lpthread -lgcc_s \
+ * -D _GNU_SOURCE -DDEBUG -DVERSION=1.0 server.c ../lib/\*.c
  */
 
 int
@@ -116,6 +124,36 @@ main(int argc , char *argv[])
        perror("Error chroot");
     exit(-1);
     }*/
+
+    if(argc <= 1) {
+        fprintf(stderr, "Provide at least one argument\n");
+        return -1;
+    }
+
+    int long_index =0;
+    int opt;
+    char *host;
+    int port;
+
+    while ((opt = getopt_long(argc, argv,"h:p:s:v",
+                   long_options, &long_index )) != -1) {
+        switch(opt) {
+            case 'h':
+                host = optarg;
+                break;
+            case 'p':
+                port = atoi(optarg);
+                break;
+            case 's':
+                break;
+            case 'v':
+                printf("%s %.1f", argv[0], VERSION);
+                return 0;
+            default:
+                usage(argv);
+                exit(EXIT_FAILURE);
+        }
+    }
 
     struct sigaction act;
     memset(&act, 0, sizeof(act));
