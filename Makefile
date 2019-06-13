@@ -6,11 +6,11 @@ LIBS=$(wildcard lib/*.c)
 LB=lib
 OBJECTS=*.o
 TNAME=c_gopherd
+VERSION=1.0
 # compiler
 CC=gcc
-CFLAGS=-Wall -pedantic -D _GNU_SOURCE
+CFLAGS=-Wall -pedantic -D _GNU_SOURCE -DVERSION=${VERSION}
 DEBUG=
-#WARNFLAGS=-Wsign-compare -Wint-conversion -fno-stack-protector
 LDLIBS+=-lpthread -lgcc_s
 INCLUDE=-I lib
 OBJECTS=$(patsubst %.c, %.o, $(SRC))
@@ -32,13 +32,15 @@ ifneq ($(wildcard .git/.),)
 endif
 
 
+.PHONY: all
 all: clean config build $(OBJECTS) $(OBJECTS_LB)
 	@echo Building the c_gopherd package
-	$(CC) -o ${PREFIX}/$(TNAME) $(OBJECTS) $(OBJECTS_LB) $(LDLIBS) $(INCLUDE) $(WARNFLAGS)
+	$(CC) -o ${PREFIX}/$(TNAME) $(OBJECTS) $(OBJECTS_LB) $(LDLIBS) $(INCLUDE) $(CFLAGS)
 
 config:
 	cp $(LB)/defaults.def.h $(LB)/defaults.h
 
+.PHONY: clean
 clean:
 	@echo Removing build directories
 	rm -rf ${PREFIX}
@@ -52,15 +54,15 @@ install:
 
 
 %.o: %.c
-	$(CC) -o $@ -c $< $(DEBUG) $(INCLUDE) $(WARNFLAGS)
+	$(CC) -o $@ -c $< $(DEBUG) $(INCLUDE) $(CFLAGS)
 
 
 $OBJECTS: $(SRC)
-	$(CC) -c $(SRC) $(LDLIBS) $(INCLUDE) $(DEBUG) $(WARNFLAGS)
+	$(CC) -c $(SRC) $(LDLIBS) $(INCLUDE) $(CFLAGS) $(DEBUG)
 
 
 $OBJECTS_LB: $(OBJECTS_LB)
-	$(CC) -c $(OBJECTS_LB) $(LDLIBS) $(INCLUDE) $(DEBUG) $(WARNFLAGS)
+	$(CC) -c $(OBJECTS_LB) $(LDLIBS) $(INCLUDE) $(CFLAGS) $(DEBUG)
 
 
 build:
@@ -68,7 +70,10 @@ build:
 
 
 executable:
-	$(CC) $(SRC) -o $(PREFIX)/c_gopherd $(LDLIBS) $(INCLUDE) $(DEBUG)
+	$(CC) $(SRC) -o $(PREFIX)/c_gopherd $(LDLIBS) $(INCLUDE) $(CFLAGS) $(DEBUG)
 
 
-.PHONY: install
+help:
+	@echo Available targets:
+	@grep '^[^#%[:space:]\.].*:' Makefile | awk '!/(help|$OBJ)/{print $$1}' | cut -d: -f1
+
