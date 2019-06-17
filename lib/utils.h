@@ -59,7 +59,7 @@ build_path(char *request)
     char *result;
 
     if(request[0] == '\0' || strcmp(request, CRLF) == 0) {
-        fprintf(stdout, "request is empty");
+        //fprintf(stdout, "Request is empty\n");
         return (char *)GROOT;
     }
     asprintf(&result, "%s/%s", GROOT, request + (request[0] == '/' ? 1 : 0));

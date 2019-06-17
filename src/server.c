@@ -26,15 +26,15 @@ sig_atomic_t volatile socket_desc;
 void *connection_handler(void *);
 
 int
-start_server(char *addr, int port) {
+start_server(char *addr, int port, char *srv_path) {
     //int socket_desc , client_sock , c;
     int client_sock , c;
     struct sockaddr_in server , client;
+    struct conn_handler_arg *th_arg;
 
     //Create socket
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
-    if (socket_desc == -1)
-    {
+    if (socket_desc == -1) {
         fprintf(stderr, "Could not create socket\n");
     }
     fprintf(stdout, "Socket created\n");
@@ -45,8 +45,7 @@ start_server(char *addr, int port) {
     server.sin_port = htons(port);
 
     //Bind
-    if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
-    {
+    if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0) {
         //print the error message
         perror("bind failed. Error\n");
         return 1;
@@ -65,9 +64,17 @@ start_server(char *addr, int port) {
     fprintf(stdout, "Waiting for incoming connections...\n");
     c = sizeof(struct sockaddr_in);
     pthread_t thread_id;
+
+
     while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) ) {
         fprintf(stdout, "Connection accepted\n");
-        if( pthread_create( &thread_id , NULL ,  connection_handler , (void*) &client_sock) < 0) {
+
+        th_arg = calloc(1, sizeof(struct conn_handler_arg));
+        th_arg->sock = client_sock;
+        th_arg->srv  = srv_path;
+
+        //if( pthread_create( &thread_id , NULL ,  connection_handler , (void*) &client_sock) < 0) {
+        if( pthread_create( &thread_id , NULL ,  connection_handler , th_arg) < 0) {
             fprintf(stderr, "could not create thread\n");
             return 1;
         }
@@ -125,15 +132,11 @@ main(int argc , char *argv[])
     exit(-1);
     }*/
 
-    if(argc <= 1) {
-        fprintf(stderr, "Provide at least one argument\n");
-        return -1;
-    }
-
     int long_index =0;
     int opt;
-    char *host;
-    int port;
+    char *host = DEFAULT_HOST;
+    int port = DEFAULT_PORT;
+    char *srv_path = GROOT;
 
     while ((opt = getopt_long(argc, argv,"h:p:s:v",
                    long_options, &long_index )) != -1) {
@@ -145,6 +148,7 @@ main(int argc , char *argv[])
                 port = atoi(optarg);
                 break;
             case 's':
+                srv_path = optarg;
                 break;
             case 'v':
                 printf("%s %.1f", argv[0], VERSION);
@@ -162,7 +166,7 @@ main(int argc , char *argv[])
 
     sigaction(SIGINT, &act, NULL);
 
-    start_server("127.0.0.1", 70);
+    start_server(host, port, srv_path);
 
     return 0;
 }
@@ -186,19 +190,29 @@ close_sock(int fd, int linger) {
  * This will handle connection for each client
  * */
 void *
-connection_handler(void *socket_desc) {
+connection_handler(void *args) {
+
+    /* Retrieve thread params */
+    struct conn_handler_arg *th_arg;
+
+    th_arg = (struct conn_handler_arg*) args;
+
     //Get the socket descriptor
-    int sock = *(int*)socket_desc;
+    int sock = th_arg->sock;
+
     int read_size;
     char request[BUFFER_SIZE];
     char *req_path;
 
+    fprintf(stdout, "ARG1: %d\n", th_arg->sock);
+    fprintf(stdout, "ARG2: %s\n", th_arg->srv);
+
     //Receive a message from client
-    while( (read_size = recv(sock , request , BUFFER_SIZE , 0)) > 0 )
-    {
+    while( (read_size = recv(sock , request , BUFFER_SIZE , 0)) > 0 ) {
         if(read_size <= 0) {
             request[read_size] = '\0';
             fprintf(stdout, "RECV %s", request);
+            break;
         }
 
         req_path = build_path(request);
@@ -209,7 +223,7 @@ connection_handler(void *socket_desc) {
         #endif
 
         if(isRoot(req_path) == 0) {
-            asprintf(&req_path, "%s%s", req_path, "gophermap");
+            asprintf(&req_path, "%s/%s", req_path, "gophermap");
             g_send_resource(sock, req_path);
         }
         else if(exists(req_path, ISDIR) == TRUE) {
@@ -218,6 +232,7 @@ connection_handler(void *socket_desc) {
             g_send_resource(sock, req_path);
         }
         g_send(sock, ".");
+
         //clear the message buffer
         memset(request, 0, BUFFER_SIZE);
         close_sock(sock, 1);
@@ -226,3 +241,4 @@ connection_handler(void *socket_desc) {
     pthread_exit(NULL);
     return 0;
 }
+

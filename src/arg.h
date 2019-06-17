@@ -14,3 +14,8 @@ static struct option long_options[] = {
     { "serve",required_argument, 0, 's'},
     {0, 0, 0, 0 }
 };
+
+struct conn_handler_arg {
+    int sock;
+    char *srv;
+};
