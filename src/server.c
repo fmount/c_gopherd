@@ -73,7 +73,6 @@ start_server(char *addr, int port, char *srv_path) {
         th_arg->sock = client_sock;
         th_arg->srv  = srv_path;
 
-        //if( pthread_create( &thread_id , NULL ,  connection_handler , (void*) &client_sock) < 0) {
         if( pthread_create( &thread_id , NULL ,  connection_handler , th_arg) < 0) {
             fprintf(stderr, "could not create thread\n");
             return 1;
