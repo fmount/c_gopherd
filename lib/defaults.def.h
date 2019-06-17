@@ -17,7 +17,7 @@
 #define CRLF "\r\t"
 #define BUFFER_SIZE 1024
 
-#define DEFAULT_HOST "localhost"
+#define DEFAULT_HOST "127.0.0.1"
 #define DEFAULT_PORT 70
 #define GROOT "/home/fmount/projects/c_gopherd/example"
 

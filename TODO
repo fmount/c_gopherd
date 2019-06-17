@@ -1,2 +1,5 @@
-a. Implement rfc first
-b. 
+A simple TODO list
+----
+
+[x] Implement rfc first
+[ ] chroot on the srv path
