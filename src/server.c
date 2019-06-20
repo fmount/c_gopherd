@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h> //for threading , link with lpthread
@@ -85,6 +84,7 @@ start_server(char *addr, int port, char *srv_path) {
         perror("accept failed\n");
         return 1;
     }
+    free(th_arg);
     return 0;
 }
 
@@ -202,9 +202,6 @@ connection_handler(void *args) {
     int read_size;
     char request[BUFFER_SIZE];
     char *req_path;
-
-    fprintf(stdout, "ARG1: %d\n", th_arg->sock);
-    fprintf(stdout, "ARG2: %s\n", th_arg->srv);
 
     //Receive a message from client
     while( (read_size = recv(sock , request , BUFFER_SIZE , 0)) > 0 ) {
