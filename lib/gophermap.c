@@ -11,6 +11,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <sys/socket.h>
 
 #include "gophermap.h"
 
@@ -121,12 +122,10 @@ parse_gophermap(const char *fpath, g_elem **elements, char *rhost, unsigned int 
 void
 g_send(int sock, char *m)
 {
-    FILE *fd = fdopen(sock, "wa");
     if(m == NULL || strlen(m) <= 2)
-        fprintf(fd, "%s\n", CRLF);
+        send(sock, CRLF, strlen(CRLF), 0);
     else
-        fprintf(fd, "%s%s", m, CRLF);
-    fflush(fd);
+        send(sock, m, strlen(m), 0);
 }
 
 void
@@ -150,7 +149,6 @@ void
 g_send_resource(int sock, char * path)
 {
     FILE *f = fopen(path, "r");
-    FILE *fd = fdopen(sock, "wa");
 
     if(f == NULL)
         return;
@@ -160,10 +158,12 @@ g_send_resource(int sock, char * path)
     rewind(f);
 
     char * line = (char *) malloc(len * sizeof(char));
+    memset(line, 0, len);
+
     if (fread(line, len, 1, f) == 1) {
-        fprintf(fd, "%s%s", line, CRLF);
+        send(sock, line, len, 0);
     }
-    fflush(fd);
+
     free(line);
     fclose(f);
 }
@@ -212,7 +212,6 @@ get_type(struct dirent *entry, char * suffix)
 void
 g_send_dir(int sock, char * path)
 {
-    FILE *fd = fdopen(sock, "wa");
     DIR *d = opendir(path);
     char *e;
     char *selector;
@@ -257,7 +256,6 @@ g_send_dir(int sock, char * path)
         }
     }
     g_send(sock, NULL);
-    fflush(fd);
 }
 
 /**
