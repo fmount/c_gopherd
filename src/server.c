@@ -58,10 +58,6 @@ start_server(char *addr, int port, char *srv_path) {
     fprintf(stdout, "Waiting for incoming connections...\n");
     c = sizeof(struct sockaddr_in);
 
-
-    //Accept and incoming connection
-    fprintf(stdout, "Waiting for incoming connections...\n");
-    c = sizeof(struct sockaddr_in);
     pthread_t thread_id;
 
 
