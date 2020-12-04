@@ -40,7 +40,7 @@ start_server(char *addr, int port, char *srv_path) {
 
     //Prepare the sockaddr_in structure
     server.sin_family = AF_INET;
-    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_addr.s_addr = inet_addr(addr);
     server.sin_port = htons(port);
 
     //Bind
