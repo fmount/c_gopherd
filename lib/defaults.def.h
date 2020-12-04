@@ -19,7 +19,7 @@
 
 #define DEFAULT_HOST "127.0.0.1"
 #define DEFAULT_PORT 70
-#define GROOT "/home/fmount/projects/c_gopherd/example"
+#define GROOT "/home/fmount/private/c_gopherd/example"
 
 typedef enum {
     ISDIR,

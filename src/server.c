@@ -25,7 +25,8 @@ sig_atomic_t volatile socket_desc;
 void *connection_handler(void *);
 
 int
-start_server(char *addr, int port, char *srv_path) {
+start_server(char *addr, int port) {
+
     //int socket_desc , client_sock , c;
     int client_sock , c;
     struct sockaddr_in server , client;
@@ -60,13 +61,11 @@ start_server(char *addr, int port, char *srv_path) {
 
     pthread_t thread_id;
 
-
     while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) ) {
         fprintf(stdout, "Connection accepted\n");
 
         th_arg = calloc(1, sizeof(struct conn_handler_arg));
         th_arg->sock = client_sock;
-        th_arg->srv  = srv_path;
 
         if( pthread_create( &thread_id , NULL ,  connection_handler , th_arg) < 0) {
             fprintf(stderr, "could not create thread\n");
@@ -109,7 +108,7 @@ handle_quit(int sig) {
 static void
 usage(char **argv)
 {
-    fprintf(stdout, "usage: %s [-h host] [-p port] [(-s|--serve path) | [-v]\n", argv[0]);
+    fprintf(stdout, "usage: %s [-h host] [-p port] | [-v]\n", argv[0]);
 }
 
 /**
@@ -131,7 +130,6 @@ main(int argc , char *argv[])
     int opt;
     char *host = DEFAULT_HOST;
     int port = DEFAULT_PORT;
-    char *srv_path = GROOT;
 
     while ((opt = getopt_long(argc, argv,"h:p:s:v",
                    long_options, &long_index )) != -1) {
@@ -141,9 +139,6 @@ main(int argc , char *argv[])
                 break;
             case 'p':
                 port = atoi(optarg);
-                break;
-            case 's':
-                srv_path = optarg;
                 break;
             case 'v':
                 printf("%s %.1f", argv[0], VERSION);
@@ -161,7 +156,7 @@ main(int argc , char *argv[])
 
     sigaction(SIGINT, &act, NULL);
 
-    start_server(host, port, srv_path);
+    start_server(host, port);
 
     return 0;
 }
