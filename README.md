@@ -34,14 +34,14 @@ USAGE
 ---
 
     $ ./c_gopherd -h
-    Usage ./bin/c_gopherd [-h host] [-p port] [-s srv_path] [-v]
+    Usage ./bin/c_gopherd [-h host] [-p port] [-v]
 
 
 THE GOPHER PROTOCOL AND DATA TYPES
 ---
 In the /example folder there is a little Gophermap file.<br>
-Customizing the **GOPHER_ROOT** directory (aka *GROOT*) or
-passing the `-s path` option, you can serve it as an *HTML equivalent index*.<br>
+By customizing the **GOPHER_ROOT** directory (aka *GROOT*)
+you can serve it as an *HTML equivalent index*.<br>
 In this way you can display your custom Gopher menu instead of just a directory listing.<br>
 A good approach enabled by the use of the gophermap is represented by the ability to create
 nested [gopherholes](https://gopher.zone/posts/tutorial-for-absolute-beginners) indexed with
