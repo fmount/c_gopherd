@@ -12,10 +12,15 @@ Build from SRC
 ---
 
 You can simply build it using the provided Makefile.<br>
-According to the defined _$PREFIX_, the default _all_ target generates a bin/ directory containing the result
-of the compilation.<br>
-The _config_ target is useful to generate a _lib/defaults.h_ with all the user-defined parameters.
-
+According to the defined _$PREFIX_, the default _all_ target generates a bin/ directory
+containing the result of the compilation.<br>
+The _config_ target is useful to generate a _lib/defaults.h_ with all the user-defined
+parameters.<br>
+For example, __GROOT__ is the definition of the path that provides the content that should
+be served by this server: customize that value before building the project and make sure
+it's a valid path containing the gophermap and all the other resources to be exposed.<br>
+Before building the server, take some time to review the content of _lib/defaults.def.h_
+and customize the provided values.
 
     $ make help
 
